@@ -4,6 +4,9 @@ class Type :
 
     def __str__(self) :
         return f"{self.type}"
+    
+    def __eq__(self, another):
+        return (self.type == another.type)
 
 class Attribut :
     def __init__(self, nom): # param type ?
@@ -12,6 +15,10 @@ class Attribut :
 
     def __str__(self):
         return f"{self.nom}"
+    
+    def __eq__(self, att):
+        return (self.nom == att.nom)
+
 
 class Relation :
     def __init__(self, nom):
@@ -19,6 +26,9 @@ class Relation :
 
     def __str__(self) :
         return f"{self.nom}"
+    
+    def __eq__(self, another):
+        return (self.nom == another.nom)
 
 class Table :
     key = 0
@@ -41,26 +51,36 @@ class Table :
 
     def __str__(self) :
         s = ""
-        s += self.relation.__str__()
+        s += str(self.relation)
         s += "["
         
         for i in range(0, len(self.attr_list)) :
-            s += self.attr_list[i].__str__()
+            s += str(self.attr_list[i])
             if i == (len(self.attr_list) - 1) :
                 s += "]\n"
             else :
-                s += ","
-            
+                s += ","            
         
         for k in self.table :
             s = s + "(" + ",".join(self.table[k]) + ")\n"
             
         return s
+    
+    def get_relation(self):
+        return self.relation
+    
+    def get_attribute(self, att_str):
+        for el in self.attr_list: 
+            if (el.nom == att_str): 
+                return el
+        print('attribute not found')
+        return None 
+
 
 
 class DataBase :
     tableList = []     
-
+    
     def __init__(self, list):
         self.tableList = list
 
@@ -69,3 +89,15 @@ class DataBase :
         for table in self.tableList :
             s += table.__str__()
         return s
+    
+    def add_table(self, table):
+        self.tableList.append(table)
+
+    def find_by_relation(self, rel):
+        for table in self.tableList:
+            if (table.relation == rel):
+                return table
+        print('relation not found')
+        return None
+    
+
