@@ -5,13 +5,22 @@ from database import *
 
 grammar = Grammar(
     r"""
+    df = conjatom ws+ implies ws+ conjatom
+    conjatom = atomList+
+    atomList = (atom ws+ "and") / ("and"? ws* atom)
+    atom = relAtom / eqAtom
     relAtom = relation tuples
+    eqAtom = eqVar+
+    eqVar = (variable equals ws*) / (equals? ws* variable)
     relation = ~"[A-Z]+[a-z]*"
     tuples = "(" variableList+ ")"
     variableList = (variable comma) / (comma? variable)
-
     variable = ~"[a-z]+[0-9]*"
     comma = ","
+    implies = "->"
+    equals = "="
+    and = "and"
+    ws = ~"[^\S\r\n]"
     """
 )
 
@@ -28,6 +37,57 @@ class DFParser(NodeVisitor) :
         
     def visit_variable(self, node, vc) :
         return Variable(node.text)
+
+    def visit_df(self, node, vc) :
+        left : AtomConj
+        right : AtomConj
+        implied = False
+        
+        for child in vc :
+           
+            if isinstance(child, AtomConj) :
+                if implied :
+                    right = child
+                else :
+                    left = child
+            elif isinstance(child, list) :
+                pass
+            else :
+                implied = True
+        return DF(left, right)
+
+    def visit_conjatom(self, node, vc) :
+        ret = []
+        for child in vc :
+            ret.append(child[0])
+        return AtomConj(ret)
+
+    def visit_atomList(self, node, vc): 
+        ret = []
+        for child in vc : 
+            parcours_liste(child, RelAtom, ret)
+            parcours_liste(child, EqAtom, ret)
+        return ret
+
+    def visit_atom(self, node, vc) :
+        ret = []
+        for child in vc :
+            ret.append(child)
+        return ret
+
+    def visit_eqVar(self, node, vc) :
+        ret = []
+        for child in vc :
+            parcours_liste(child, Variable, ret)
+        
+        return ret
+
+    def visit_eqAtom(self, node, vc) :
+        ret = []
+        equalsTo : Variable
+        for i in range(1,len(vc)) :
+            ret.append(vc[i][0]) 
+        return EqAtom(vc[0][0], ret)
     
     def visit_variableList(self, node, vc) :
         ret = []
@@ -55,7 +115,7 @@ class DFParser(NodeVisitor) :
 
    
 
-text = str("R(x1,x2,x3,x4,x5)")
+text = str("R(x1,x2) and x1 = x2 -> Q(x2,x3)")
 
 tree = grammar.match(text)
 res = DFParser()
