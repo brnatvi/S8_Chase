@@ -5,90 +5,62 @@ from database import *
 
 grammar = Grammar(
     r"""
-    # and = "and"
-    # equals = "="
-    # implies = "->"
-    # lparen = "("
-    # rparen = ")"
-    # comma = ","
-
-    df = conjAtom " -> " conjAtom
-    conjAtom = (atom (" and " atom)*) +
-    atom = (relAtom / eqAtom)
-
-    relAtom = relation tuples 
+    relAtom = relation tuples
     relation = ~"[A-Z]+[a-z]*"
-    tuples = "(" variableList ")"
-    variableList = (variable ("," variable)*) +
-    equals = "="
-    eqAtom = (variable equals variable)+ / (equals variable)
+    tuples = "(" variableList+ ")"
+    variableList = (variable comma) / (comma? variable)
+
     variable = ~"[a-z]+[0-9]*"
-    ws = ~"[^\S\r\n]"
-    
-    
-    
-    # newline = ~"[\r\n]+"
-    # listDFs = df +
+    comma = ","
     """
 )
 
-class DFParser(NodeVisitor) :
-    entry = {}
-    conj_atom = []
+def parcours_liste(l, type, ret) :
+    for i in l :
+        if isinstance(i, list) :
+            parcours_liste(i, type, ret)
+        if isinstance(i, type) :
+            ret.append(i)
+    return ret
+    
 
-    def __init__(self, grammar, text) :
-        ast = grammar.match(text)
-        self.visit(ast)
-
+class DFParser(NodeVisitor) :        
+        
     def visit_variable(self, node, vc) :
         return Variable(node.text)
     
     def visit_variableList(self, node, vc) :
-        # self.entry.append([node.text])
-        return node.text
-
-    def visit_tuples(self, node, vc) :
-        # self.entry.append(node.text)
-        return node.text
+        ret = []
+        for child in vc :
+            parcours_liste(child, Variable, ret)
+        return ret
 
     def visit_relation(self, node, vc) :
         return Relation(node.text)
 
+    def visit_tuples(self, node, vc) :
+        ret = []
+        for child in vc :
+            if isinstance(child, list):
+                ret.append([item for sublist in child for item in sublist])
+        return ret
+
+    
     def visit_relAtom(self, node, vc) :
         relation, tuples = vc
         return RelAtom(relation, tuples)
 
-    def visit_eqAtom(self, node, vc) :
-        # print(node.text)
-        print(vc)
-
-    def visit_df(self, node, vc) :
-        # print(node.text)
-        # print(vc)
-        left,_,right = vc
-        self.entry['left'] = left
-        self.entry['right'] = right
-        return node.text
-
-    def visit_conjAtom(self, node, vc):
-        # print(node.text)        
-        return node.text
-
-    def visit_atom(self, node, vc) :
-        # print(node.text)
-        
-        return node.text
-
-    
-
     def generic_visit(self, node, visited_children) :
-        pass
+        return visited_children or node
 
-    # visit_variable + visit_variableList 
+   
 
-text = str("R(x1,x2,x3) and x1=x2=x3 -> P(x2,x2)")
+text = str("R(x1,x2,x3,x4,x5)")
 
-print(DFParser(grammar, text).entry)
+tree = grammar.match(text)
+res = DFParser()
+output = res.visit(tree)
+print(output)
 
     
     

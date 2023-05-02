@@ -26,10 +26,11 @@ class RelAtom:
 
     def __init__(self, relation, list_tuples):
         self.rel_name = relation
-        self.list = list_tuples
+        self.list_tuples = list_tuples
         
 
     def __str__(self):
+        # print(self.list_tuples)
         ret = str(self.rel_name) + '('
     
         for attr in self.list_tuples:
