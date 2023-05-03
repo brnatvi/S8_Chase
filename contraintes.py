@@ -60,7 +60,7 @@ class EqAtom:
         return str(self.whoIsEqual) + '=' + str(self.toWhom)
 
 
-class AtomConjunction :
+#class AtomConjunction :
     ''' R(x1, y1) /\ Q(y2, x2) /\ x1 = y1 '''
 
 class AtomConj :
