@@ -17,17 +17,25 @@ class RelAtom:
     ''' R[A, B]'''
     rel_name : Relation
     
-    def __init__(self, relation, list_attr, list_vars):
+    # def __init__(self, relation, list_attr, list_vars):
+    #     self.rel_name = relation
+    #     self.list_attr = list_attr
+    #     self.list_vars = list_vars
+
+    def __init__(self, relation, list_tuples):
         self.rel_name = relation
-        self.list_attr = list_attr
-        self.list_vars = list_vars
+        self.list_tuples = list_tuples
+        
 
     def __str__(self):
-        ret = str(self.rel_name) + '['    
-        for attr in self.list_attr:
-            ret += str(attr) + ', '        
+        # print(self.list_tuples)
+        ret = str(self.rel_name) + '('
+    
+        for attr in self.list_tuples:
+            ret += str(attr) + ', '
+        
         ret = ret[:-2]
-        ret += ']'
+        ret += ')'
         return ret
     
     def strVars(self):
@@ -42,11 +50,11 @@ class RelAtom:
 class EqAtom:
     ''' x1 = x2'''
     whoIsEqual : Variable
-    toWhom : Variable
     
     def __init__(self, at1, at2):
         self.whoIsEqual = at1
-        self.toWhom = at2
+        self.toWhom = at2 # can be variable or EqAtom
+
 
     def __str__(self):        
         return str(self.whoIsEqual) + '=' + str(self.toWhom)
@@ -55,21 +63,16 @@ class EqAtom:
 class AtomConjunction :
     ''' R(x1, y1) /\ Q(y2, x2) /\ x1 = y1 '''
 
-    def __init__(self, list_atoms):
-        self.list_atoms = list_atoms        
+class AtomConj :
+    list_atom = []
 
-    def compose_transformation(self, database: DataBase):
-        for atom in self.list_atoms:
-            if isinstance(atom, RelAtom):
-                if (database.find_by_relation(atom.rel_name))
+    def __init__(self, list_atom) :
+        self.list_atom = list_atom
 
-class AtomDisjunction :
-    ''' R(x1, y1) \/ Q(y2, x2) '''
-    def __init__(self, list_atoms):
-        self.list_atoms = list_atoms        
+class DF :
+    left : AtomConj
+    right : AtomConj
 
-
-class Dependency :
-    def __init__(self, corps, head):
-        self.corps = corps
-        self.head = head 
+    def __init__(self, left, right) :
+        self.left = left
+        self.right = right
