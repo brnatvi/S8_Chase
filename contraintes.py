@@ -13,8 +13,6 @@ class Variable :
         return (self.val == another.val)
 
 
-
-
 class RelAtom:
     ''' R[A, B]'''
     rel_name : Relation
@@ -25,15 +23,20 @@ class RelAtom:
         self.list_vars = list_vars
 
     def __str__(self):
-        ret = str(self.rel_name) + '['
-    
+        ret = str(self.rel_name) + '['    
         for attr in self.list_attr:
-            ret += str(attr) + ', '
-        
+            ret += str(attr) + ', '        
         ret = ret[:-2]
         ret += ']'
         return ret
     
+    def strVars(self):
+        ret = str(self.rel_name) + '('    
+        for v in self.list_vars:
+            ret += str(v) + ', '        
+        ret = ret[:-2]
+        ret += ')'
+        return ret
     
 
 class EqAtom:
@@ -49,7 +52,24 @@ class EqAtom:
         return str(self.whoIsEqual) + '=' + str(self.toWhom)
 
 
-#class AtomConjunction :
+class AtomConjunction :
     ''' R(x1, y1) /\ Q(y2, x2) /\ x1 = y1 '''
 
+    def __init__(self, list_atoms):
+        self.list_atoms = list_atoms        
 
+    def compose_transformation(self, database: DataBase):
+        for atom in self.list_atoms:
+            if isinstance(atom, RelAtom):
+                if (database.find_by_relation(atom.rel_name))
+
+class AtomDisjunction :
+    ''' R(x1, y1) \/ Q(y2, x2) '''
+    def __init__(self, list_atoms):
+        self.list_atoms = list_atoms        
+
+
+class Dependency :
+    def __init__(self, corps, head):
+        self.corps = corps
+        self.head = head 

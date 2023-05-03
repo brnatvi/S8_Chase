@@ -36,6 +36,8 @@ def main() :
     test2 = EqAtom(Variable('x1'), Variable('x2'))
     print(test2)
 
+    print(test.strVars())
+
 
 
 if __name__ == "__main__" :
