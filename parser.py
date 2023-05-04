@@ -112,16 +112,5 @@ class DFParser(NodeVisitor) :
 
     def generic_visit(self, node, visited_children) :
         return visited_children or node
-
-   
-
-data = str("R(x1,x2) and x1 = x2 -> Q(x2,x3)\nR(x1,x2,x3) -> P(x2,x1,x3)")
-
-for text in data.splitlines() :
-    tree = grammar.match(text)
-    res = DFParser()
-    output = res.visit(tree)
-    print(output)
-
     
     

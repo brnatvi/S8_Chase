@@ -8,9 +8,15 @@ class Variable :
 
     def __str__(self) :
         return f"{self.val}"
+
+    def __eq__(self, another) :
+        if isinstance(another, Variable) :
+            return self.val == another.val
+        return False
     
-    def equals(self, another):
-        return (self.val == another.val)
+    # def equals(self, another):
+    #     return (self.val == another.val)
+
 
 
 
@@ -40,6 +46,18 @@ class RelAtom:
         ret += ')'
         return ret
     
+    def __iter__(self) :
+        self.index = 0
+        return self
+    
+    def __next__(self) :
+        if self.index < len(self.list_tuples) :
+            result = self.list_tuples[self.index]
+            self.index += 1
+            return result
+        else :
+            raise StopIteration
+
     
 
 class EqAtom:
@@ -64,9 +82,21 @@ class AtomConj :
     def __init__(self, list_atom) :
         self.list_atom = list_atom
 
+    def __iter__(self) :
+        self.index = 0
+        return self
+
+    def __next__(self) :
+        if self.index < len(self.list_atom) :
+            result = self.list_atom[self.index]
+            self.index += 1
+            return result
+        else :
+            raise StopIteration
+
 class DF :
-    left : AtomConj
-    right : AtomConj
+    left : AtomConj # corps
+    right : AtomConj # tete
 
     def __init__(self, left, right) :
         self.left = left
