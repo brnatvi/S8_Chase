@@ -19,8 +19,6 @@ class Variable :
 
 
 
-
-
 class RelAtom:
     ''' R[A, B]'''
     rel_name : Relation
@@ -58,6 +56,13 @@ class RelAtom:
         else :
             raise StopIteration
 
+    def strVars(self):
+        ret = str(self.rel_name) + '('    
+        for v in self.list_vars:
+            ret += str(v) + ', '        
+        ret = ret[:-2]
+        ret += ')'
+        return ret
     
 
 class EqAtom:
