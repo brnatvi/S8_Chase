@@ -1,6 +1,6 @@
 from contraintes import *
-from parser import *
 from database import *
+from chase_parser import *
 
 
 def isTGD(df : DF) :
@@ -63,15 +63,11 @@ data = str("R(x1,x2) -> Q(x2,x1,z1)\n")
 
 DFs = []
 for text in data.splitlines() :
-    tree = grammar.match(text)
+    tree = get_grammar().match(text)
     res = DFParser()
     output = res.visit(tree)
     DFs.append(output)
 
 for df in DFs :
     print(isTGD(df))
-
-
-
-
 
