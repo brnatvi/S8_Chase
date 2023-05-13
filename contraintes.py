@@ -6,42 +6,46 @@ class Variable :
     def __init__(self, val) :
         self.val = val
 
-    def __str__(self) :
-        return f"{self.val}"
+    def __str__(self) :        
+        return self.val
 
     def __eq__(self, another) :
         if isinstance(another, Variable) :
             return self.val == another.val
         return False
-    
-    # def equals(self, another):
-    #     return (self.val == another.val)
+
 
 
 
 class RelAtom:
-    ''' R[A, B]'''
+    ''' R[A, B] R(x1, x2)'''
     rel_name : Relation
-    
-    # def __init__(self, relation, list_attr, list_vars):
-    #     self.rel_name = relation
-    #     self.list_attr = list_attr
-    #     self.list_vars = list_vars
 
-    def __init__(self, relation, list_tuples):
+
+    def __init__(self, relation, list_vars):
         self.rel_name = relation
-        self.list_tuples = list_tuples
+        self.list_vars = list_vars
+        self.list_attr = list()             #TODO make assert nb vars = nb attributes
         
 
     def __str__(self):
-        # print(self.list_tuples)
-        ret = str(self.rel_name) + '('
-    
-        for attr in self.list_tuples:
-            ret += str(attr) + ', '
         
-        ret = ret[:-2]
-        ret += ')'
+        ret = str(self.rel_name) + '['
+
+        for el in self.list_attr:
+            ret += str(el) + ', '        
+        #ret = ret[:-2]
+        ret += '] '
+
+        
+        ret += str(self.rel_name) + '('        
+   
+        for el in self.list_vars:       #TODO do we really need list of list ?
+            for v in el:
+                ret += str(v) + ', '        
+            ret = ret[:-2]
+            ret += ')'
+
         return ret
     
     def __iter__(self) :
@@ -49,20 +53,27 @@ class RelAtom:
         return self
     
     def __next__(self) :
-        if self.index < len(self.list_tuples) :
-            result = self.list_tuples[self.index]
+        if self.index < len(self.list_vars) :
+            result = self.list_vars[self.index]
             self.index += 1
             return result
         else :
             raise StopIteration
 
-    def strVars(self):
-        ret = str(self.rel_name) + '('    
-        for v in self.list_vars:
-            ret += str(v) + ', '        
-        ret = ret[:-2]
-        ret += ')'
-        return ret
+    def takeAttributeOfVariable(self, var):
+        index = -1
+        try:
+            index = self.list_vars.index(el)
+        except Exception as e:
+            print('variable ' + str(el) + ' is not in relation atom ' + self.rel_name)
+            return None 
+        if (index >= len(self.list_attr)):
+            print('nb of variables != nb of attributes')
+            return None
+        return self.list_attr[index]
+
+    def addAttribute(self, att):
+        self.list_attr.append(att)
     
 
 class EqAtom:
@@ -73,9 +84,9 @@ class EqAtom:
         self.whoIsEqual = at1
         self.toWhom = at2 # can be variable or EqAtom
 
-
     def __str__(self):        
         return str(self.whoIsEqual) + '=' + str(self.toWhom)
+
 
 
 #class AtomConjunction :
@@ -98,6 +109,13 @@ class AtomConj :
             return result
         else :
             raise StopIteration
+    
+    def __str__(self):
+        ret = ''
+        for el in self.list_atom:
+            ret += str(el)
+        return ret
+
 
 class DF :
     left : AtomConj # corps
@@ -106,3 +124,8 @@ class DF :
     def __init__(self, left, right) :
         self.left = left
         self.right = right
+
+    def __str__(self):        
+        return 'left: '+ str(self.left) + '  rigth: '+ str(self.right)
+
+    

@@ -19,6 +19,7 @@ def get_grammar():
         tuples = "(" variableList+ ")"
         variableList = (variable comma) / (comma? variable)
         variable = ~"[a-z]+[0-9]*"
+        attribute = ~"[A-Z]+[0-9]*"
         comma = ","
         implies = "->"
         equals = "="
