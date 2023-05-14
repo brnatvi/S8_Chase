@@ -1,5 +1,7 @@
 from read_tables import *
 from contraintes import *
+import chase_parser as chp
+import chase as ch
 
 def main() :
     list = []
@@ -26,18 +28,30 @@ def main() :
     database = DataBase(list)
     print(database)
 
-    print('')
+    
+    contr1 = str("Emprunt(x1,x2) -> Livre(x2,y1,z1) and Lecteur(x1)\n")
+    contr2 = str("Livre(x1,x2,x3) -> Auteur(x2,y,z)\n")
+    
+    list_instr1 = ch.create_instructions(contr1, database)
+    list_instr2 = ch.create_instructions(contr2, database)
 
-    test = RelAtom(Relation('R'), [Attribut('A'), Attribut('B'), Attribut('C')], [Variable('x'), Variable('y'), Variable('z')])
-    print(test)
+    ch.apply_TGD(list_instr1 + list_instr2, database)
+        
+   
+  #  DFs = []
+  #
+  #  for text in data.splitlines() :
+  #      tree = chp.get_grammar().match(text)
+  #      res = chp.DFParser()
+  #      output = res.visit(tree) 
+  #      DFs.append(output)
+  #  
+  #  for df in DFs :
+  #      print(ch.isTGD(df))
+  #
 
-    print('')
-
-    test2 = EqAtom(Variable('x1'), Variable('x2'))
-    print(test2)
-
-    print(test.strVars())
-
+        
+    
 
 
 if __name__ == "__main__" :

@@ -1,3 +1,6 @@
+
+from prettytable import PrettyTable
+
 class Type :
     def __init__(self, type) :
         self.type = type
@@ -49,33 +52,37 @@ class Table :
         if i == self.key + 1:
             self.key += 1
 
-    def __str__(self) :
-        s = ""
-        s += str(self.relation)
-        s += "["
-        
-        for i in range(0, len(self.attr_list)) :
-            s += str(self.attr_list[i])
-            if i == (len(self.attr_list) - 1) :
-                s += "]\n"
-            else :
-                s += ","            
-        
-        for k in self.table :
-            s = s + "(" + ",".join(self.table[k]) + ")\n"
-            
-        return s
-    
-    def get_relation(self):
-        return self.relation
-    
-    def get_attribute(self, att_str):
-        for el in self.attr_list: 
-            if (el.nom == att_str): 
-                return el
-        print('attribute not found')
-        return None 
+   # def __str__(self) :
+   #     s = ""
+   #     s += str(self.relation)
+   #     s += "["
+   #     
+   #     for i in range(0, len(self.attr_list)) :
+   #         s += str(self.attr_list[i])
+   #         if i == (len(self.attr_list) - 1) :
+   #             s += "]\n"
+   #         else :
+   #             s += ","            
+   #     
+   #     for k in self.table :
+   #         s = s + "(" + ",".join(self.table[k]) + ")\n"
+   #         
+   #     return s
 
+    def __str__(self) :
+        t = PrettyTable(self.attr_list)          
+        for key, value in self.table.items():
+            t.add_row(value)
+        return '{}\n{}\n\n'.format(self.relation.nom, t)
+    
+    def get_index_of_attribut(self, attr):        
+        try:
+            index = self.attr_list.index(attr)
+            print('attribute ' + str(attr) + ' has index ' + str(index) + ' in table ' + self.relation.nom)
+            return index
+        except Exception as e:
+            print('attribute ' + str(attr) + ' is not in table ' + self.relation.nom)
+            return -1
 
 
 class DataBase :
@@ -93,11 +100,9 @@ class DataBase :
     def add_table(self, table):
         self.tableList.append(table)
 
-    def find_by_relation(self, rel):
+    def find_table_by_relation(self, rel):
         for table in self.tableList:
             if (table.relation == rel):
                 return table
         print('relation not found')
         return None
-    
-

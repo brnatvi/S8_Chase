@@ -1,6 +1,7 @@
+import chase_parser as chp
 from contraintes import *
 from database import *
-import chase_parser as chp
+
 
 
 def isTGD(df : DF) :
@@ -58,34 +59,56 @@ def satisfaitCorps(df, table) : # database au lieu de table
 
     return satisfies
 
+def create_instructions(str_dfs, database):
+    instructions = []
 
-data = str("R(x1,x2) -> Q(x2,x1,z1)\n")     #TODO add attributes parsing an reading from R[A, B]
+    for text in str_dfs.splitlines() :
+        tree = chp.get_grammar().match(text)
+        res = chp.DFParser()
+        output = res.visit(tree) 
+        output.complete_attributes(database)        
+        print(output)
+        instructions = instructions + output.create_instructions_TGD()
 
-
-# return fromRel R attr A copyTo Q attr D
-#        fromRel R attr B copyTo Q attr C
-#          rel attr rel attr  
-# return [[ R,   A,  Q,  D], [R, B, Q, C]]
-# 
-# return [instr1, instr2]
-
-# find R, Q in DB 
-# for i from 0 to end Q:
-#   for j from 0 to end R:
-#       if ( Q[D[i]] == R[A[j]] ) && ( Q[C[i]] == R[B[i]] ):
-#           continue
-#   Q.append ( new tuple composed by R[A[i]] and R[B[i]] and NULL in others attributes of Q )  
+    return instructions
 
 
-DFs = []
-for text in data.splitlines() :
-    tree = chp.get_grammar().match(text)
-    res = chp.DFParser()
-    output = res.visit(tree)
-    
-    print(type(output))
-    DFs.append(output)
+def apply_TGD(list_instr, database: DataBase):
+    for instr in list_instr:
+        print('Instruction : ' + str(instr))
 
-for df in DFs :
-    print(isTGD(df))
+        tableFrom = database.find_table_by_relation(instr.fromRel)
+        tableTo = database.find_table_by_relation(instr.toRel)
+        columnFrom = instr.fromAttr        
+        columnTo = instr.toAttr
+
+        for i in range(1, len(tableFrom.table) + 1):
+            isFound = False
+            for j in range(1, len(tableTo.table) + 1):
+                if ( tableFrom.table[i][columnFrom] == tableTo.table[j][columnTo] ):                   
+                    isFound = True
+                    break
+
+            if not isFound:                
+
+                print('\n\nNot found ' + str(tableFrom.table[i][columnFrom]) + ' last was ' + str(tableTo.table[j][columnTo]))
+                
+                if ( None == tableFrom.table[i][columnFrom] ):
+                    print('TODO need to try to find fields = None?')
+
+
+                nbCol = tableTo.nb_columns
+                newItem = []              
+
+                for k in range(0, nbCol):
+                    if columnTo == k:                        
+                        newItem.append(tableFrom.table[i][columnFrom])
+
+                    else:
+                        newItem.append(None)
+
+                tableTo.insert(newItem)
+
+                print('Modified table :')
+                print(tableTo)
 

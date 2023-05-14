@@ -34,7 +34,7 @@ class RelAtom:
 
         for el in self.list_attr:
             ret += str(el) + ', '        
-        #ret = ret[:-2]
+        ret = ret[:-2]
         ret += '] '
 
         
@@ -60,20 +60,18 @@ class RelAtom:
         else :
             raise StopIteration
 
-    def takeAttributeOfVariable(self, var):
-        index = -1
-        try:
-            index = self.list_vars.index(el)
-        except Exception as e:
-            print('variable ' + str(el) + ' is not in relation atom ' + self.rel_name)
-            return None 
-        if (index >= len(self.list_attr)):
-            print('nb of variables != nb of attributes')
-            return None
-        return self.list_attr[index]
+  #  def takeAttributeOfVariable(self, var):
+  #      index = -1
+  #      try:
+  #          index = self.list_vars.index(el)
+  #      except Exception as e:
+  #          print('variable ' + str(el) + ' is not in relation atom ' + self.rel_name)
+  #          return None 
+  #      if (index >= len(self.list_attr)):
+  #          print('nb of variables != nb of attributes')
+  #          return None
+  #      return self.list_attr[index]
 
-    def addAttribute(self, att):
-        self.list_attr.append(att)
     
 
 class EqAtom:
@@ -113,9 +111,25 @@ class AtomConj :
     def __str__(self):
         ret = ''
         for el in self.list_atom:
-            ret += str(el)
+            ret += str(el) + ' and '
+        ret = ret[:-5]
         return ret
 
+
+class Instruction :
+    fromRel: Relation
+    fromAttr: int
+    toRel: Relation
+    toAttr: int
+
+    def __init__(self, fromR, fromA, toR, toA) :
+        self.fromRel = fromR      
+        self.fromAttr = fromA    
+        self.toRel = toR      
+        self.toAttr = toA  
+
+    def __str__(self):
+        return '[' + str( self.fromRel) + ', ' + str(self.fromAttr) + ', ' +  str(self.toRel) + ', ' + str(self.toAttr) + ']'
 
 class DF :
     left : AtomConj # corps
@@ -124,8 +138,37 @@ class DF :
     def __init__(self, left, right) :
         self.left = left
         self.right = right
+        
 
     def __str__(self):        
-        return 'left: '+ str(self.left) + '  rigth: '+ str(self.right)
+        return str(self.left) + '  -> '+ str(self.right)
 
-    
+
+    def complete_attributes(self, database):
+        for el in self.left.list_atom:
+            if isinstance(el, RelAtom):                
+                el.list_attr = el.list_attr + database.find_table_by_relation(el.rel_name).attr_list
+        
+        for el in self.right.list_atom:
+            if isinstance(el, RelAtom):                
+                el.list_attr = el.list_attr + database.find_table_by_relation(el.rel_name).attr_list
+
+    def create_instructions_TGD(self):
+        body = self.left.list_atom
+        head = self.right.list_atom
+        def make_job(atomTo, atomFrom):
+            listInstr = list()
+            for i in range(len(atomFrom.list_vars[0])):
+                for j in range(len(atomTo.list_vars[0])):
+                    if atomFrom.list_vars[0][i] == atomTo.list_vars[0][j]:                                               
+                        listInstr.append( Instruction(atomFrom.rel_name, i, atomTo.rel_name, j) )
+            return listInstr
+
+        allInstr = []
+        for relTo in head:
+            for relFrom in body:
+                allInstr = allInstr + make_job(relTo, relFrom)
+        return allInstr
+ 
+    def create_instructions_EGD(self):
+        print('TODO')
