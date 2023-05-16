@@ -4,7 +4,7 @@ from database import *
 
 
 
-def isTGD(df : DF) :
+def isTGD(df : DF) :             # TODO it is more logical to place this function into DF class
     corps = df.left
     tete = df.right
     if len(corps.list_atom) != 1 :
@@ -73,52 +73,91 @@ def create_instructions(str_dfs, database):
             instructions = instructions + output.create_instructions_TGD()
 
         elif(output.is_EGD()) :
-            output.create_instructions_EGD()
+            instructions = instructions + [output.create_instructions_EGD()]
 
     return instructions
 
 
 def apply_TGD(list_instr, database: DataBase):
-    resInstructions = []
 
+    makeMerge = False
     for instr in list_instr:
-        print('Instruction : ' + str(instr))
+        if (len(instr) == 1):
 
-        tableFrom = database.find_table_by_relation(instr.fromRel)
-        tableTo = database.find_table_by_relation(instr.toRel)
-        columnFrom = instr.fromAttr        
-        columnTo = instr.toAttr
+            print('Instruction : ' + str(instr[0]))
+            tableFrom = database.find_table_by_relation(instr[0].fromRel)
+            tableTo = database.find_table_by_relation(instr[0].toRel)
+            columnFrom = instr[0].fromAttr        
+            columnTo = instr[0].toAttr
 
-        for i in range(1, len(tableFrom.table) + 1):
-            isFound = False
-            for j in range(1, len(tableTo.table) + 1):
-                if ( tableFrom.table[i][columnFrom] == tableTo.table[j][columnTo] ):                   
-                    isFound = True
-                    break
+            for i in range(1, len(tableFrom.table) + 1):
+                isFound = False
+                for j in range(1, len(tableTo.table) + 1):
+                    if ( tableFrom.table[i][columnFrom] == tableTo.table[j][columnTo] ):                   
+                        isFound = True
+                        break
 
-            if not isFound:
-                nbCol = tableTo.nb_columns
-                newItem = []              
+                if not isFound:
+                    nbCol = tableTo.nb_columns
+                    newItem = []              
+    
+                    for k in range(0, nbCol):
+                        if columnTo == k:                        
+                            newItem.append(tableFrom.table[i][columnFrom])
+    
+                        else:
+                            newItem.append(None)
+    
+                    tableTo.insert(newItem)    
+                    print('Modified table :')
+                    print(tableTo)
 
-                for k in range(0, nbCol):
-                    if columnTo == k:                        
-                        newItem.append(tableFrom.table[i][columnFrom])
+        
+        else: # list of instructions on the same relations  -> need to merge results
+            resInstructions = []
 
-                    else:
-                        newItem.append(None)
-                
-                resInstructions.append(newItem)
+            for inst in instr:
+                print('Instruction : ' + str(inst))
+                tableFrom = database.find_table_by_relation(inst.fromRel)
+                tableTo = database.find_table_by_relation(inst.toRel)
+                columnFrom = inst.fromAttr        
+                columnTo = inst.toAttr
 
-    toInsert = [None]*len(resInstructions[0])
+                for i in range(1, len(tableFrom.table) + 1):
+                    isFound = False
+                    for j in range(1, len(tableTo.table) + 1):
+                        if ( tableFrom.table[i][columnFrom] == tableTo.table[j][columnTo] ):                   
+                            isFound = True
+                            break
 
-    for i in range(len(resInstructions[0])):
-        for j in range(len(resInstructions)):
-            if resInstructions[j][i] != None:                
-                toInsert[i] = resInstructions[j][i]
-                break
+                    if not isFound:
+                        nbCol = tableTo.nb_columns
+                        newItem = []              
 
-    tableTo.insert(toInsert)
+                        for k in range(0, nbCol):
+                            if columnTo == k:                        
+                                newItem.append(tableFrom.table[i][columnFrom])
 
-    print('Modified table :')
-    print(tableTo)
+                            else:
+                                newItem.append(None)
+                        
+                        resInstructions.append(newItem)
 
+            toInsert = [None]*len(resInstructions[0])
+
+            for i in range(len(resInstructions[0])):
+                for j in range(len(resInstructions)):
+                    if resInstructions[j][i] != None:                
+                        toInsert[i] = resInstructions[j][i]
+
+
+            tableTo.insert(toInsert)
+
+            print('Modified table :')
+            print(tableTo)
+
+
+
+def apply_EGD(instr_EGD: InstructionEGD, database: DataBase):
+    
+    print('\nInstruction EGD : ' + str(instr_EGD[0]) + '\n\n')

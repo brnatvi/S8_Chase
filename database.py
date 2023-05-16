@@ -52,22 +52,6 @@ class Table :
         if i == self.key + 1:
             self.key += 1
 
-   # def __str__(self) :
-   #     s = ""
-   #     s += str(self.relation)
-   #     s += "["
-   #     
-   #     for i in range(0, len(self.attr_list)) :
-   #         s += str(self.attr_list[i])
-   #         if i == (len(self.attr_list) - 1) :
-   #             s += "]\n"
-   #         else :
-   #             s += ","            
-   #     
-   #     for k in self.table :
-   #         s = s + "(" + ",".join(self.table[k]) + ")\n"
-   #         
-   #     return s
 
     def __str__(self) :
         t = PrettyTable(self.attr_list)          

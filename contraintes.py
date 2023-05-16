@@ -51,17 +51,15 @@ class RelAtom:
         else :
             raise StopIteration
 
-  #  def takeAttributeOfVariable(self, var):
-  #      index = -1
-  #      try:
-  #          index = self.list_vars.index(el)
-  #      except Exception as e:
-  #          print('variable ' + str(el) + ' is not in relation atom ' + self.rel_name)
-  #          return None 
-  #      if (index >= len(self.list_attr)):
-  #          print('nb of variables != nb of attributes')
-  #          return None
-  #      return self.list_attr[index]
+    def get_index_var(self, var):
+        index = -1
+        try:
+            index = self.list_vars[0].index(var)
+            return index
+        except Exception as e:
+           # print('variable ' + str(var) + ' is not in relation atom ' + str(self.rel_name))
+            return index
+
 
     
 
@@ -108,12 +106,13 @@ class AtomConj :
             ret += str(el) + ' and '
         ret = ret[:-5]
         return ret
-
-    def has_EqAtom(self):
+       
+    def get_EqAtom(self):                       # TODO if multiple EqAtom in this AtomConj ?
         for el in self.list_atom:
             if isinstance(el, EqAtom):
-                return True
-        return False
+                return el
+        print('this AtomConj has not EqAtom')
+        return None
 
 class Instruction :
     fromRel: Relation
@@ -132,12 +131,26 @@ class Instruction :
 
 
 class InstructionEGD :
-    def __init__(self, list_instr1, list_instr2) :
-        self.ifEq = list_instr1     
-        self.thenEq = list_instr2    
+    def __init__(self, list_instr_IF, list_instr_THEN) :
+        self.ifEq = list_instr_IF     
+        self.thenEq = list_instr_THEN    
   
     def __str__(self):
-        return 'if ' + str(self.ifEq) + ' then ' + str(self.ifEq)
+
+        ret = 'if '
+
+        for inst in self.ifEq:
+            ret += str(inst) + ', '
+        ret = ret[:-2]
+
+        ret += ' then '
+
+        for inst in self.thenEq:
+            ret += str(inst) + ', '
+        ret = ret[:-2]
+
+        return ret
+    
 
 
 class DF :
@@ -169,34 +182,84 @@ class DF :
             listInstr = list()
             for i in range(len(atomFrom.list_vars[0])):
                 for j in range(len(atomTo.list_vars[0])):
-                    if atomFrom.list_vars[0][i] == atomTo.list_vars[0][j]:                                               
+                    if atomFrom.list_vars[0][i] == atomTo.list_vars[0][j]:                   
                         listInstr.append( Instruction(atomFrom.rel_name, i, atomTo.rel_name, j) )
             return listInstr
 
         allInstr = []
         for relTo in head:
+            newInstr = []
             for relFrom in body:
-                allInstr = allInstr + make_job(relTo, relFrom)
+                newInstr.append( make_job(relTo, relFrom) )               
+            allInstr = allInstr + newInstr
         return allInstr
  
     
     def is_EGD(self):
-        return (self.left.has_EqAtom() and self.right.has_EqAtom())
+        leftEq = self.left.get_EqAtom()
+        rightEq = self.right.get_EqAtom() 
+       
+        if (None != leftEq) and (None != rightEq):
+            for atom in self.left.list_atom:
+                if isinstance(atom, RelAtom):                
+                    if ( atom.get_index_var(leftEq.whoIsEqual) != -1 ):  
+                        return True
+           
+                    for vars in leftEq.toWhom:      # toWhom  can be list
+                        if ( atom.get_index_var(vars) != -1 ):  
+                            return True
+            return False
+        
+        else:
+            return False
 
 
     def create_instructions_EGD(self):
-        allInstr = []
+        
         if not self.is_EGD():
             print('Cannot create instruction: Df is not EGD')
-            return allInstr
+            return None
+        
+        # REFERENCE: InstructionEGD(list_instrIf, list_instrThen)        
+        listInsuctionsIF = []
+        listInstructionsThen = []
+
+        leftEquality = self.left.get_EqAtom()                   # TODO what if left AtomConj has multiple EqAtom ? 
 
         body = self.left.list_atom
-        for el in body:
-            print(str(el) + '  ')
-        head = self.right.list_atom
-        for el in head:
-            print(str(el) + '  ')
+        for atom in body:
+            if isinstance(atom, RelAtom):       
+                index = atom.get_index_var(leftEquality.whoIsEqual)
+                
+                if ( index != -1):
+                    ifEqInstruction = Instruction(None, -1, None, -1)
+                    ifEqInstruction.fromRel = atom.rel_name
+                    ifEqInstruction.fromAttr = index
+                
+                for vars in leftEquality.toWhom:      # toWhom  can be list
+                    index = atom.get_index_var(vars)
+                    if ( index != -1 ):  
+                        ifEqInstruction.toRel = atom.rel_name
+                        ifEqInstruction.toAttr = index
+                        listInsuctionsIF.append(ifEqInstruction)
 
-        
-        return allInstr
+        rightEquality = self.right.get_EqAtom()                  # TODO what if right AtomConj has multiple EqAtom ?       
+
+        head = self.right.list_atom
+        for atom in body:
+            if isinstance(atom, RelAtom):       
+                index = atom.get_index_var(rightEquality.whoIsEqual)
+                if ( index != -1):
+                    thenEqInstruction = Instruction(None, -1, None, -1)
+                    thenEqInstruction.fromRel = atom.rel_name
+                    thenEqInstruction.fromAttr = index
+                
+                for vars in rightEquality.toWhom:      # toWhom  can be list
+                    index = atom.get_index_var(vars)
+                    if ( index != -1 ):  
+                        thenEqInstruction.toRel = atom.rel_name
+                        thenEqInstruction.toAttr = index
+                        listInstructionsThen.append(thenEqInstruction)
+                
+        return InstructionEGD(listInsuctionsIF, listInstructionsThen)
 
