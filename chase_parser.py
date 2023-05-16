@@ -89,7 +89,8 @@ class DFParser(NodeVisitor) :
     def visit_eqAtom(self, node, vc) :
         ret = []
         for i in range(1,len(vc)) :
-            ret.append(vc[i][0]) 
+            if isinstance(vc[i][0], Variable):
+                ret.append(vc[i][0]) 
         return EqAtom(vc[0][0], ret)
     
     def visit_variableList(self, node, vc) :
