@@ -16,7 +16,6 @@ class Variable :
 
 
 
-
 class RelAtom:
     ''' R[A, B] R(x1, x2)'''
     rel_name : Relation

@@ -8,9 +8,9 @@ from database import *
 def get_grammar():
     return Grammar(
         r"""
-        df = conjatom ws+ implies ws+ conjatom
+        df = conjatom implies ws+ conjatom
         conjatom = atomList+
-        atomList = (atom ws+ "and") / ("and"? ws* atom)
+        atomList = (atom ws+ and ws+) / (atom ws*)
         atom = relAtom / eqAtom
         relAtom = relation tuples
         eqAtom = eqVar+
@@ -80,6 +80,7 @@ class DFParser(NodeVisitor) :
 
     def visit_eqVar(self, node, vc) :
         ret = []
+        
         for child in vc :
             parcours_liste(child, Variable, ret)
         
@@ -87,7 +88,6 @@ class DFParser(NodeVisitor) :
 
     def visit_eqAtom(self, node, vc) :
         ret = []
-        equalsTo : Variable
         for i in range(1,len(vc)) :
             ret.append(vc[i][0]) 
         return EqAtom(vc[0][0], ret)
@@ -115,5 +115,3 @@ class DFParser(NodeVisitor) :
 
     def generic_visit(self, node, visited_children) :
         return visited_children or node
-    
-    
