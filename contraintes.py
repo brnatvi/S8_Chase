@@ -68,14 +68,18 @@ class RelAtom:
 class EqAtom:
     ''' x1 = x2'''
     whoIsEqual : Variable
-    toWhom : Variable
+    toWhom : list 
     
     def __init__(self, at1, at2):
         self.whoIsEqual = at1
         self.toWhom = at2           # can be variable or EqAtom
 
-    def __str__(self):        
-        return str(self.whoIsEqual) + '=' + str(self.toWhom)
+    def __str__(self):  
+        ret = str(self.whoIsEqual)      
+        for e in self.toWhom :
+            ret = ret + "=" + str(e)
+        # return str(self.whoIsEqual) + '=' + str(self.toWhom)
+        return ret
 
 
 
