@@ -127,6 +127,16 @@ class Instruction :
     def __str__(self):
         return '[' + str( self.fromRel) + ', ' + str(self.fromAttr) + ', ' +  str(self.toRel) + ', ' + str(self.toAttr) + ']'
 
+
+class InstructionEGD :
+    def __init__(self, list_instr1, list_instr2) :
+        self.ifEq = list_instr1     
+        self.thenEq = list_instr2    
+  
+    def __str__(self):
+        return 'if ' + str(self.ifEq) + ' then ' + str(self.ifEq)
+
+
 class DF :
     left : AtomConj # corps
     right : AtomConj # tete
@@ -174,6 +184,7 @@ class DF :
     def create_instructions_EGD(self):
         allInstr = []
         if not self.is_EGD():
+            print('Cannot create instruction: Df is not EGD')
             return allInstr
 
         body = self.left.list_atom
