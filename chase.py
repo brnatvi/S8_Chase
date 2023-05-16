@@ -68,12 +68,19 @@ def create_instructions(str_dfs, database):
         output = res.visit(tree) 
         output.complete_attributes(database)        
         print(output)
-        instructions = instructions + output.create_instructions_TGD()
+
+        if (isTGD(output)):
+            instructions = instructions + output.create_instructions_TGD()
+
+        elif(output.is_EGD()) :
+            output.create_instructions_EGD()
 
     return instructions
 
 
 def apply_TGD(list_instr, database: DataBase):
+    resInstructions = []
+
     for instr in list_instr:
         print('Instruction : ' + str(instr))
 
@@ -89,14 +96,7 @@ def apply_TGD(list_instr, database: DataBase):
                     isFound = True
                     break
 
-            if not isFound:                
-
-                print('\n\nNot found ' + str(tableFrom.table[i][columnFrom]) + ' last was ' + str(tableTo.table[j][columnTo]))
-                
-                if ( None == tableFrom.table[i][columnFrom] ):
-                    print('TODO need to try to find fields = None?')
-
-
+            if not isFound:
                 nbCol = tableTo.nb_columns
                 newItem = []              
 
@@ -106,9 +106,19 @@ def apply_TGD(list_instr, database: DataBase):
 
                     else:
                         newItem.append(None)
+                
+                resInstructions.append(newItem)
 
-                tableTo.insert(newItem)
+    toInsert = [None]*len(resInstructions[0])
 
-                print('Modified table :')
-                print(tableTo)
+    for i in range(len(resInstructions[0])):
+        for j in range(len(resInstructions)):
+            if resInstructions[j][i] != None:                
+                toInsert[i] = resInstructions[j][i]
+                break
+
+    tableTo.insert(toInsert)
+
+    print('Modified table :')
+    print(tableTo)
 

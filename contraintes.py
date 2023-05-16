@@ -29,16 +29,8 @@ class RelAtom:
         
 
     def __str__(self):
-        
-        ret = str(self.rel_name) + '['
-
-        for el in self.list_attr:
-            ret += str(el) + ', '        
-        ret = ret[:-2]
-        ret += '] '
-
-        
-        ret += str(self.rel_name) + '('        
+              
+        ret = str(self.rel_name) + '('        
    
         for el in self.list_vars:       #TODO do we really need list of list ?
             for v in el:
@@ -77,20 +69,19 @@ class RelAtom:
 class EqAtom:
     ''' x1 = x2'''
     whoIsEqual : Variable
+    toWhom : Variable
     
     def __init__(self, at1, at2):
         self.whoIsEqual = at1
-        self.toWhom = at2 # can be variable or EqAtom
+        self.toWhom = at2           # can be variable or EqAtom
 
     def __str__(self):        
         return str(self.whoIsEqual) + '=' + str(self.toWhom)
 
 
 
-#class AtomConjunction :
-    ''' R(x1, y1) /\ Q(y2, x2) /\ x1 = y1 '''
-
 class AtomConj :
+    ''' R(x1, y1) /\ Q(y2, x2) /\ x1 = y1 '''
     list_atom = []
 
     def __init__(self, list_atom) :
@@ -115,6 +106,11 @@ class AtomConj :
         ret = ret[:-5]
         return ret
 
+    def has_EqAtom(self):
+        for el in self.list_atom:
+            if isinstance(el, EqAtom):
+                return True
+        return False
 
 class Instruction :
     fromRel: Relation
@@ -170,5 +166,23 @@ class DF :
                 allInstr = allInstr + make_job(relTo, relFrom)
         return allInstr
  
+    
+    def is_EGD(self):
+        return (self.left.has_EqAtom() and self.right.has_EqAtom())
+
+
     def create_instructions_EGD(self):
-        print('TODO')
+        allInstr = []
+        if not self.is_EGD():
+            return allInstr
+
+        body = self.left.list_atom
+        for el in body:
+            print(str(el) + '  ')
+        head = self.right.list_atom
+        for el in head:
+            print(str(el) + '  ')
+
+        
+        return allInstr
+
