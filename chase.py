@@ -109,8 +109,8 @@ def apply_TGD(list_instr, database: DataBase):
                             newItem.append(None)
     
                     tableTo.insert(newItem)    
-                    print('Modified table :')
-                    print(tableTo)
+            print('Modified table :')
+            print(tableTo)
 
         
         else: # list of instructions on the same relations  -> need to merge results
@@ -142,17 +142,18 @@ def apply_TGD(list_instr, database: DataBase):
                                 newItem.append(None)
                         
                         resInstructions.append(newItem)
+                       
 
-            toInsert = [None]*len(resInstructions[0])
-
-            for i in range(len(resInstructions[0])):
-                for j in range(len(resInstructions)):
-                    if resInstructions[j][i] != None:                
-                        toInsert[i] = resInstructions[j][i]
-
-
-            tableTo.insert(toInsert)
-
+            chunks = [resInstructions[i:i + len(instr)] for i in range(0, len(resInstructions), len(instr))]
+            
+            for i in range(len(chunks[0])):
+                toInsert = [None]*len(chunks[0][0])
+                for j in range(len(chunks)):                    
+                    for k in range(len(resInstructions[0])):
+                        if chunks[j][i][k] != None:                
+                            toInsert[k] = chunks[j][i][k]
+                
+                tableTo.insert(toInsert)
             print('Modified table :')
             print(tableTo)
 
