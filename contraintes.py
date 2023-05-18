@@ -111,7 +111,7 @@ class AtomConj :
         for el in self.list_atom:
             if isinstance(el, EqAtom):
                 return el
-        print('this AtomConj ' + str(self) + ' has not EqAtom')
+      #  print('this AtomConj ' + str(self) + ' has not EqAtom')
         return None
 
 class Instruction :
@@ -269,11 +269,10 @@ class DF :
                                 thenEqInstruction.fromRel = at.rel_name
                                 thenEqInstruction.fromAttr = ind
                     
-                                index = at.get_index_var(vars)
-                                if ( index != -1 ):
-                                    thenEqInstruction.toRel = tableTo
-                                    thenEqInstruction.toAttr = index
-                                    listInstructionsThen.append(thenEqInstruction)
+                                index = atom.get_index_var(vars)
+                                thenEqInstruction.toRel = tableTo
+                                thenEqInstruction.toAttr = index
+                                listInstructionsThen.append(thenEqInstruction)
 
 
         else:                         # ... -> x1=x2
