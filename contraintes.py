@@ -215,21 +215,23 @@ class DF :
     def is_EGD(self):
         leftEq = self.left.get_EqAtom()
         rightEq = self.right.get_EqAtom() 
-       
-        if (None != rightEq):
-            for atom in self.left.list_atom:
-                if isinstance(atom, RelAtom):                
-                    if ( atom.get_index_var(leftEq.whoIsEqual) != -1 ):  
-                        return True
-           
-                    for vars in leftEq.toWhom:      # toWhom  can be list
-                        if ( atom.get_index_var(vars) != -1 ):  
-                            return True
-            return False
-        
-        else:
+        if rightEq == None : 
             print('\nThis DF ' + str(self) + ' is not EGD\n')
             return False
+        isEGD = False
+        for atom in self.left.list_atom:
+            if isinstance(atom, RelAtom):                
+                if ( atom.get_index_var(rightEq.whoIsEqual) != -1 ):                    
+                    isEGD = True                    
+        
+                for vars in rightEq.toWhom:      # toWhom  can be list                    
+                    if ( atom.get_index_var(vars) != -1 ):  
+                        isEGD = True                    
+        
+        if not isEGD:            
+            print('\nThis DF ' + str(self) + ' is not EGD\n')
+     
+        return isEGD
 
     def create_instructions_TGD(self):
         body = self.left.list_atom

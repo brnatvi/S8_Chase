@@ -266,3 +266,21 @@ def apply_oblivious_skolem_chase(list_instr, database: DataBase):
 
         print('Modified table :')
         print(tableTo)
+
+def apply_chase(database, contraintes : str) :
+    # tableau des contraintes
+    list_instr = []
+    for c in contraintes.splitlines():
+        list_instr.append(c, database)
+    
+    for instr in list_instr :
+        # test if satisfies all conditions
+
+        if instr.is_TGD() :
+            apply_TGD(instr, database)
+        elif instr.is_EGD() :
+            apply_EGD(instr, database)
+    
+    # test if contraintes satisfies database
+    # else return False
+    
