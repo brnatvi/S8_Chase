@@ -10,6 +10,10 @@ class NoneObj:
     def __str__(self):        
         return 'None' + str(self.val)
 
+    def __eq__(self, other) :
+        if isinstance(other, NoneObj) :
+            return self.val == other.val
+        return False 
 
 
 def satisfaitCorps(df, table) : # database au lieu de table
@@ -169,11 +173,23 @@ def apply_EGD(instr_EGD: InstructionEGD, database: DataBase):
     for i in range(1, len(tableIfFrom.table)+1) :
         for j in range(1, len(tableIfTo.table)+1) :
             if(tableIfFrom.table[i][columnIfFrom] == tableIfTo.table[j][columnIfTo]) :
-                
-                if tableThenFrom.table[i][columnThenFrom] == None :
+                tmpTo = tableThenTo.table[j][columnThenTo]
+                tmpFrom = tableThenFrom.table[i][columnThenFrom]
+                if not isinstance(tableThenTo.table[j][columnThenTo], NoneObj) :
                     tableThenFrom.table[i][columnThenFrom] = tableThenTo.table[j][columnThenTo]
                 else :
                     tableThenTo.table[j][columnThenTo] = tableThenFrom.table[i][columnThenFrom] 
+                # egalisation de toutes les variables
+                if isinstance(tmpTo, NoneObj) :
+                    for u in range(1, len(tableThenTo.table)+1) :
+                        for v in range(0, tableThenTo.nb_columns) :
+                            if isinstance(tableThenTo.table[u][v], NoneObj) and  tableThenTo.table[u][v] == tmpTo :
+                                tableThenTo.table[u][v] = tmpTo
+                if isinstance(tmpFrom, NoneObj) :
+                    for u in range(1, len(tableThenFrom.table)+1) :
+                        for v in range(0, tableThenFrom.nb_columns) :
+                            if isinstance(tableThenFrom.table[u][v], NoneObj) and  tableThenFrom.table[u][v] == tmpFrom :
+                                tableThenFrom.table[u][v] = tmpFrom
     
     print('Modified table :')
     print(tableThenTo)
