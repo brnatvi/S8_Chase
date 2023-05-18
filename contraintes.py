@@ -153,7 +153,7 @@ class InstructionEGD :
     
     def get_ifEq(self) :
         return self.ifEq
-
+  
     def get_thenEq(self) :
         return self.thenEq
     
@@ -181,6 +181,56 @@ class DF :
             if isinstance(el, RelAtom):                
                 el.list_attr = el.list_attr + database.find_table_by_relation(el.rel_name).attr_list
 
+    
+    def is_TGD(self) :
+        corps = self.left
+        tete = self.right
+        if len(corps.list_atom) != 1 :
+            print("corps a plus d'un atome")
+            return False
+        for atom in corps.list_atom :
+            if isinstance(atom, EqAtom) :
+                print("contient EqAtom")
+                return False
+        for atom in tete.list_atom :
+            if isinstance(atom, EqAtom) :
+                print("contient EqAtom")
+                return False
+        list_vars = corps.list_atom[0].list_vars[0]
+        
+        same_var = 0
+        diff_var = 0
+        
+        for atom in tete.list_atom :
+            for var in atom.list_vars[0] :
+                if var in list_vars :
+                    same_var += 1
+                else :
+                    diff_var += 1
+            if same_var == 0 or diff_var == 0 :
+                return False
+        return True
+
+    
+    def is_EGD(self):
+        leftEq = self.left.get_EqAtom()
+        rightEq = self.right.get_EqAtom() 
+       
+        if (None != rightEq):
+            for atom in self.left.list_atom:
+                if isinstance(atom, RelAtom):                
+                    if ( atom.get_index_var(leftEq.whoIsEqual) != -1 ):  
+                        return True
+           
+                    for vars in leftEq.toWhom:      # toWhom  can be list
+                        if ( atom.get_index_var(vars) != -1 ):  
+                            return True
+            return False
+        
+        else:
+            print('\nThis DF ' + str(self) + ' is not EGD\n')
+            return False
+
     def create_instructions_TGD(self):
         body = self.left.list_atom
         head = self.right.list_atom
@@ -199,32 +249,9 @@ class DF :
                 newInstr.append( make_job(relTo, relFrom) )               
             allInstr = allInstr + newInstr
         return allInstr
- 
-    
-    def is_EGD(self):
-        leftEq = self.left.get_EqAtom()
-        rightEq = self.right.get_EqAtom() 
-       
-        if (None != leftEq):
-            for atom in self.left.list_atom:
-                if isinstance(atom, RelAtom):                
-                    if ( atom.get_index_var(leftEq.whoIsEqual) != -1 ):  
-                        return True
-           
-                    for vars in leftEq.toWhom:      # toWhom  can be list
-                        if ( atom.get_index_var(vars) != -1 ):  
-                            return True
-            return False
-        
-        else:
-            return False
 
 
     def create_instructions_EGD(self):
-        
-        if not self.is_EGD():
-            print('Cannot create instruction: Df is not EGD')
-            return None
         
         # REFERENCE: InstructionEGD(list_instrIf, list_instrThen)        
         listInsuctionsIF = []
@@ -233,7 +260,6 @@ class DF :
         leftEquality = self.left.get_EqAtom()                   # TODO what if left AtomConj has multiple EqAtom ? 
 
         body = self.left.list_atom
-
         for atom in body:
             if isinstance(atom, RelAtom):       
                 index = atom.get_index_var(leftEquality.whoIsEqual)
@@ -250,46 +276,22 @@ class DF :
                         ifEqInstruction.toAttr = index
                         listInsuctionsIF.append(ifEqInstruction)
 
-
         rightEquality = self.right.get_EqAtom()                  # TODO what if right AtomConj has multiple EqAtom ?       
+
         head = self.right.list_atom
-
-        if None == rightEquality:     # ... -> Q(x3,x2) 
-            
-            for atom in head:
-                tableTo = atom.rel_name
-                for vars in atom.list_vars[0]:
-                    print('Trying to create a rule for ' + str(vars) )
-                    
-                    for at in body:
-                        if isinstance(at, RelAtom):       
-                            ind = at.get_index_var(vars)
-                            if ( ind != -1):      
-                                thenEqInstruction = Instruction(None, -1, None, -1)
-                                thenEqInstruction.fromRel = at.rel_name
-                                thenEqInstruction.fromAttr = ind
-                    
-                                index = atom.get_index_var(vars)
-                                thenEqInstruction.toRel = tableTo
-                                thenEqInstruction.toAttr = index
-                                listInstructionsThen.append(thenEqInstruction)
-
-
-        else:                         # ... -> x1=x2
-            for atom in body:
-                if isinstance(atom, RelAtom):       
-                    index = atom.get_index_var(rightEquality.whoIsEqual)
-                    if ( index != -1):
-                        thenEqInstruction = Instruction(None, -1, None, -1)
-                        thenEqInstruction.fromRel = atom.rel_name
-                        thenEqInstruction.fromAttr = index
-                    
-                    for vars in rightEquality.toWhom:      # toWhom  can be list
-                        index = atom.get_index_var(vars)
-                        if ( index != -1 ):  
-                            thenEqInstruction.toRel = atom.rel_name
-                            thenEqInstruction.toAttr = index
-                            listInstructionsThen.append(thenEqInstruction)
+        for atom in body:
+            if isinstance(atom, RelAtom):       
+                index = atom.get_index_var(rightEquality.whoIsEqual)
+                if ( index != -1):
+                    thenEqInstruction = Instruction(None, -1, None, -1)
+                    thenEqInstruction.fromRel = atom.rel_name
+                    thenEqInstruction.fromAttr = index
+                
+                for vars in rightEquality.toWhom:      # toWhom  can be list
+                    index = atom.get_index_var(vars)
+                    if ( index != -1 ):  
+                        thenEqInstruction.toRel = atom.rel_name
+                        thenEqInstruction.toAttr = index
+                        listInstructionsThen.append(thenEqInstruction)
                 
         return InstructionEGD(listInsuctionsIF, listInstructionsThen)
-

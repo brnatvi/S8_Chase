@@ -20,11 +20,12 @@ def main() :
     print(database)
 
 
-    contr3 = str("R(x1,x2,x5) and P(x4,x3) and x1=x3 -> Q(x3,x2,z)")
-    list_instr3 = ch.create_instructions(contr3, database)
-    ch.apply_EGD(list_instr3, database)
-
-
+    contr = str("P(x1,y1) -> P(x1,z)\n")
+    list_instr = ch.create_instructions(contr, database)
+    ch.apply_oblivious_chase(list_instr, database, 5)
     
+    
+
+
 if __name__ == "__main__" :
     main()
