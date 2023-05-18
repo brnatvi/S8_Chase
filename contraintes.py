@@ -151,6 +151,12 @@ class InstructionEGD :
 
         return ret
     
+    def get_ifEq(self) :
+        return self.ifEq
+
+    def get_thenEq(self) :
+        return self.thenEq
+    
 
 
 class DF :

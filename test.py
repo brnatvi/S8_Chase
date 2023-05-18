@@ -62,11 +62,13 @@ def main() :
     list_instr1 = ch.create_instructions(contr1, database)  
     ch.apply_TGD(list_instr1, database)
 
-    contr3 = str("R(x1,y1,z1) and P(y2,x2,z2) and y1=y2 -> x1=x2\n")
+    contr3 = str("Q(x1,y1,z1) and P(y2,x2) and y1=y2 -> x1=x2\n")
     list_instr3 = ch.create_instructions(contr3, database)
     ch.apply_EGD(list_instr3, database)
     
-    
+    contr4 = str("R(x1,x2,x5) and P(x4,x3) and x1=x3 -> Q(x3,x2)")
+    list_instr4 = ch.create_instructions(contr4, database)
+    print(list_instr4)
 
 
 if __name__ == "__main__" :
