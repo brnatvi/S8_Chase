@@ -11,6 +11,7 @@ class NoneObj:
         return 'None' + str(self.val)
 
 
+
 def satisfaitCorps(df, table) : # database au lieu de table
     corps = df.left
     corps_tuples = corps.list_atom
@@ -208,6 +209,41 @@ def apply_oblivious_chase(list_instr, database: DataBase, iter: int):
                     
                 allNewTuples.append(newItem)
                 count += 1
+    
+        for tup in allNewTuples:
+            tableTo.insert(tup)
+
+        print('Modified table :')
+        print(tableTo)
+
+
+def apply_oblivious_skolem_chase(list_instr, database: DataBase):
+
+    if 0 == len(list_instr):
+        return
+
+    for instr in list_instr:
+        print('Instruction : ' + str(instr[0]))
+        tableFrom = database.find_table_by_relation(instr[0].fromRel)
+        tableTo = database.find_table_by_relation(instr[0].toRel)
+        columnFrom = instr[0].fromAttr        
+        columnTo = instr[0].toAttr
+        allNewTuples = []
+        count = 0
+        for i in range(1, len(tableFrom.table) + 1):
+                      
+            nbCol = tableTo.nb_columns
+            newItem = []
+            for k in range(0, nbCol):
+                count += 1
+                if columnTo == k:                        
+                    newItem.append(tableFrom.table[i][columnFrom])
+        
+                else:
+                    newItem.append(NoneObj(count - i))
+                
+            allNewTuples.append(newItem)
+            
     
         for tup in allNewTuples:
             tableTo.insert(tup)
