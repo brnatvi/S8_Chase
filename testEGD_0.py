@@ -20,7 +20,7 @@ def main() :
     print(database)
 
 
-    contr3 = str("R(x1,y1,z1) and P(y2,x2,z2) and y1=y2 -> x1=x2\n")
+    contr3 = str("R(x1,y1,z1) and Q(y2,x2,z2) and y1=y2 -> x1=x2\n")
     list_instr3 = ch.create_instructions(contr3, database)
     ch.apply_EGD(list_instr3, database)
     

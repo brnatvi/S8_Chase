@@ -111,7 +111,7 @@ class AtomConj :
         for el in self.list_atom:
             if isinstance(el, EqAtom):
                 return el
-        print('this AtomConj has not EqAtom')
+        print('this AtomConj ' + str(self) + ' has not EqAtom')
         return None
 
 class Instruction :
@@ -150,6 +150,12 @@ class InstructionEGD :
         ret = ret[:-2]
 
         return ret
+    
+    def get_ifEq(self) :
+        return self.ifEq
+
+    def get_thenEq(self) :
+        return self.thenEq
     
 
 
@@ -199,7 +205,7 @@ class DF :
         leftEq = self.left.get_EqAtom()
         rightEq = self.right.get_EqAtom() 
        
-        if (None != leftEq) and (None != rightEq):
+        if (None != leftEq):
             for atom in self.left.list_atom:
                 if isinstance(atom, RelAtom):                
                     if ( atom.get_index_var(leftEq.whoIsEqual) != -1 ):  
@@ -227,6 +233,7 @@ class DF :
         leftEquality = self.left.get_EqAtom()                   # TODO what if left AtomConj has multiple EqAtom ? 
 
         body = self.left.list_atom
+
         for atom in body:
             if isinstance(atom, RelAtom):       
                 index = atom.get_index_var(leftEquality.whoIsEqual)
@@ -243,23 +250,47 @@ class DF :
                         ifEqInstruction.toAttr = index
                         listInsuctionsIF.append(ifEqInstruction)
 
-        rightEquality = self.right.get_EqAtom()                  # TODO what if right AtomConj has multiple EqAtom ?       
 
+        rightEquality = self.right.get_EqAtom()                  # TODO what if right AtomConj has multiple EqAtom ?       
         head = self.right.list_atom
-        for atom in body:
-            if isinstance(atom, RelAtom):       
-                index = atom.get_index_var(rightEquality.whoIsEqual)
-                if ( index != -1):
-                    thenEqInstruction = Instruction(None, -1, None, -1)
-                    thenEqInstruction.fromRel = atom.rel_name
-                    thenEqInstruction.fromAttr = index
-                
-                for vars in rightEquality.toWhom:      # toWhom  can be list
-                    index = atom.get_index_var(vars)
-                    if ( index != -1 ):  
-                        thenEqInstruction.toRel = atom.rel_name
-                        thenEqInstruction.toAttr = index
-                        listInstructionsThen.append(thenEqInstruction)
+
+        if None == rightEquality:     # ... -> Q(x3,x2) 
+            
+            for atom in head:
+                tableTo = atom.rel_name
+                for vars in atom.list_vars[0]:
+                    print('Trying to create a rule for ' + str(vars) )
+                    
+                    for at in body:
+                        if isinstance(at, RelAtom):       
+                            ind = at.get_index_var(vars)
+                            if ( ind != -1):      
+                                thenEqInstruction = Instruction(None, -1, None, -1)
+                                thenEqInstruction.fromRel = at.rel_name
+                                thenEqInstruction.fromAttr = ind
+                    
+                                index = at.get_index_var(vars)
+                                if ( index != -1 ):
+                                    thenEqInstruction.toRel = tableTo
+                                    thenEqInstruction.toAttr = index
+                                    listInstructionsThen.append(thenEqInstruction)
+
+
+        else:                         # ... -> x1=x2
+            for atom in body:
+                if isinstance(atom, RelAtom):       
+                    index = atom.get_index_var(rightEquality.whoIsEqual)
+                    if ( index != -1):
+                        thenEqInstruction = Instruction(None, -1, None, -1)
+                        thenEqInstruction.fromRel = atom.rel_name
+                        thenEqInstruction.fromAttr = index
+                    
+                    for vars in rightEquality.toWhom:      # toWhom  can be list
+                        index = atom.get_index_var(vars)
+                        if ( index != -1 ):  
+                            thenEqInstruction.toRel = atom.rel_name
+                            thenEqInstruction.toAttr = index
+                            listInstructionsThen.append(thenEqInstruction)
                 
         return InstructionEGD(listInsuctionsIF, listInstructionsThen)
 

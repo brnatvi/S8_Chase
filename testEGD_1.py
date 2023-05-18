@@ -6,22 +6,21 @@ import chase as ch
 def main() :
     list = []
 
-    livre = read_table('csv/Livre.csv' , 'Livre')
-    auteur = read_table('csv/Auteur.csv' , 'Auteur')
-    emprunt = read_table('csv/Emprunt.csv' , 'Emprunt')
-    lecteur = read_table('csv/Lecteur.csv' , 'Lecteur')
- 
- 
-    list.append(livre)
-    list.append(auteur)
-    list.append(emprunt)
-    list.append(lecteur)
+
+    tableR = read_table('csv/R.csv', 'R')
+    tableP = read_table('csv/P.csv', 'P')
+    tableQ = read_table('csv/Q.csv', 'Q')
     
+    list.append(tableR)
+    list.append(tableP)
+    list.append(tableQ)
+    
+    print('Initial Data Base :')
     database = DataBase(list)
     print(database)
- 
 
-    contr3 = str("Livre(x1,y1,z1) and Livre(x2,y2,z2) and x1=x2 -> y1=y2\n")
+
+    contr3 = str("R(x1,x2,x5) and P(x4,x3) and x1=x3 -> Q(x3,x2)")
     list_instr3 = ch.create_instructions(contr3, database)
     ch.apply_EGD(list_instr3, database)
 

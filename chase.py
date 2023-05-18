@@ -162,3 +162,30 @@ def apply_TGD(list_instr, database: DataBase):
 def apply_EGD(instr_EGD: InstructionEGD, database: DataBase):
     
     print('\nInstruction EGD : ' + str(instr_EGD[0]) + '\n\n')
+    '''
+    parcourir r 
+        parcourir p
+            si r[1] == p[0]
+                r[0] = p[1]
+    '''
+    list_if = instr_EGD[0].get_ifEq()[0]
+    list_then = instr_EGD[0].get_thenEq()[0]
+    tableIfFrom = database.find_table_by_relation(list_if.fromRel)
+    tableIfTo = database.find_table_by_relation(list_if.toRel)
+    columnIfFrom = list_if.fromAttr        
+    columnIfTo = list_if.toAttr
+
+    tableThenFrom = database.find_table_by_relation(list_then.fromRel)
+    tableThenTo = database.find_table_by_relation(list_then.toRel)
+    columnThenFrom = list_then.fromAttr
+    columnThenTo = list_then.toAttr
+
+    for i in range(1, len(tableIfFrom.table)+1) :
+        for j in range(1, len(tableIfTo.table)+1) :
+            if(tableIfFrom.table[i][columnIfFrom] == tableIfTo.table[j][columnIfTo]) :
+                
+                if tableThenFrom.table[i][columnThenFrom] == None :
+                    tableThenFrom.table[i][columnThenFrom] = tableThenTo.table[j][columnThenTo]
+                else :
+                    tableThenTo.table[j][columnThenTo] = tableThenFrom.table[i][columnThenFrom] 
+    print(tableThenTo)
