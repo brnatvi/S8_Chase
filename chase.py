@@ -71,6 +71,7 @@ def apply_TGD(list_instr, database: DataBase):
             tableTo = database.find_table_by_relation(instr[0].toRel)
             columnFrom = instr[0].fromAttr        
             columnTo = instr[0].toAttr
+            count = 1
 
             for i in range(1, len(tableFrom.table) + 1):
                 isFound = False
@@ -84,11 +85,12 @@ def apply_TGD(list_instr, database: DataBase):
                     newItem = []              
     
                     for k in range(0, nbCol):
+                        count += 1
                         if columnTo == k:                        
                             newItem.append(tableFrom.table[i][columnFrom])
     
                         else:
-                            newItem.append(None)
+                            newItem.append(NoneObj(count - i))
     
                     tableTo.insert(newItem)    
             print('Modified table :')
@@ -105,6 +107,7 @@ def apply_TGD(list_instr, database: DataBase):
                 tableTo = database.find_table_by_relation(inst.toRel)
                 columnFrom = inst.fromAttr        
                 columnTo = inst.toAttr
+                count = 1
 
                 for i in range(1, len(tableFrom.table) + 1):
                    # isFound = True
@@ -119,11 +122,12 @@ def apply_TGD(list_instr, database: DataBase):
                         newItem = []              
 
                         for k in range(0, nbCol):
+                            count += 1
                             if columnTo == k:                        
                                 newItem.append(tableFrom.table[i][columnFrom])
 
                             else:
-                                newItem.append(None)
+                                newItem.append(NoneObj(count - i))
                         
                         resInstructions.append(newItem)
                        
@@ -131,10 +135,10 @@ def apply_TGD(list_instr, database: DataBase):
             chunks = [resInstructions[i:i + len(instr)] for i in range(0, len(resInstructions), len(instr))]
             
             for i in range(len(chunks[0])):
-                toInsert = [None]*len(chunks[0][0])
+                toInsert = [NoneObj(i)]*len(chunks[0][0])
                 for j in range(len(chunks)):                    
                     for k in range(len(resInstructions[0])):
-                        if chunks[j][i][k] != None:                
+                        if not isinstance(chunks[j][i][k], NoneObj):                                     
                             toInsert[k] = chunks[j][i][k]
                 
                 tableTo.insert(toInsert)
